@@ -21,6 +21,7 @@ processed_agent_data = Table(
     metadata,
     Column("id", Integer, primary_key=True, index=True),
     Column("road_state", String),
+    Column("user_id", Integer),
     Column("x", Float),
     Column("y", Float),
     Column("z", Float),
@@ -62,12 +63,14 @@ async def create_processed_agent_data(data: ProcessedAgentData, db: Session = De
             raise HTTPException(status_code=500, detail="Database connection is not active")
 
         road_state = data.road_state
+        user_id = data.agent_data.user_id
         accelerometer = data.agent_data.accelerometer
         gps = data.agent_data.gps
         timestamp = data.agent_data.timestamp
 
         query = processed_agent_data.insert().values(
             road_state=road_state,
+            user_id=user_id,
             x=accelerometer.x,
             y=accelerometer.y,
             z=accelerometer.z,
@@ -82,8 +85,7 @@ async def create_processed_agent_data(data: ProcessedAgentData, db: Session = De
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/processed_agent_data/",
-         response_model=list[ProcessedAgentDataInDB])
+@app.get("/processed_agent_data/", response_model=list[ProcessedAgentDataInDB])
 def list_processed_agent_data(db: Session = Depends(get_db)):
     try:
         processed_agent_data_ = db.query(processed_agent_data).all()
@@ -105,12 +107,13 @@ def read_processed_agent_data(processed_agent_data_id: int, db: Session = Depend
         return ProcessedAgentDataInDB(
             id=data[0],
             road_state=data[1],
-            x=data[2],
-            y=data[3],
-            z=data[4],
-            latitude=data[5],
-            longitude=data[6],
-            timestamp=data[7]
+            user_id=data[2],
+            x=data[3],
+            y=data[4],
+            z=data[5],
+            latitude=data[6],
+            longitude=data[7],
+            timestamp=data[8]
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -129,6 +132,7 @@ def update_processed_agent_data(processed_agent_data_id: int, data: ProcessedAge
 
         update_data = {
             "road_state": data.road_state,
+            "user_id": data.agent_data.user_id,
             "x": data.agent_data.accelerometer.x,
             "y": data.agent_data.accelerometer.y,
             "z": data.agent_data.accelerometer.z,
@@ -149,6 +153,7 @@ def update_processed_agent_data(processed_agent_data_id: int, data: ProcessedAge
         return ProcessedAgentDataInDB(
             id=processed_agent_data_id,
             road_state=update_data["road_state"],
+            user_id=update_data["user_id"],
             x=update_data["x"],
             y=update_data["y"],
             z=update_data["z"],
@@ -178,12 +183,13 @@ def delete_processed_agent_data(processed_agent_data_id: int, db: Session = Depe
         return ProcessedAgentDataInDB(
             id=data_to_delete[0],
             road_state=data_to_delete[1],
-            x=data_to_delete[2],
-            y=data_to_delete[3],
-            z=data_to_delete[4],
-            latitude=data_to_delete[5],
-            longitude=data_to_delete[6],
-            timestamp=data_to_delete[7]
+            user_id=data_to_delete[2],
+            x=data_to_delete[3],
+            y=data_to_delete[4],
+            z=data_to_delete[5],
+            latitude=data_to_delete[6],
+            longitude=data_to_delete[7],
+            timestamp=data_to_delete[8]
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

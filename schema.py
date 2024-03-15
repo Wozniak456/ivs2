@@ -14,6 +14,7 @@ class GpsData(BaseModel):
 
 
 class AgentData(BaseModel):
+    user_id: int
     accelerometer: AccelerometerData
     gps: GpsData
     timestamp: datetime
@@ -38,6 +39,7 @@ class ProcessedAgentData(BaseModel):
 class ProcessedAgentDataInDB(BaseModel):
     id: int
     road_state: str
+    user_id: int
     x: float
     y: float
     z: float
